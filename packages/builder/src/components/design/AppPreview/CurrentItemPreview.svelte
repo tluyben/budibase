@@ -166,7 +166,6 @@
   const handleKeydownEvent = event => {
     const { key } = event.data
     if (
-      // (event.key === "Delete" || event.key === "Backspace") &&
       (key === "Delete" || key === "Backspace") &&
       selectedComponentId &&
       ["input", "textarea"].indexOf(
