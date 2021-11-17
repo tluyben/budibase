@@ -27,8 +27,20 @@
   $: search = searchTable(id)
   $: columnOptions = Object.keys($search.schema || {})
 
+  // ES2015 guarantees insertion order for string fields, so
+  // this works
+  function sortTables(tables) {
+    return Object.keys(tables)
+      .map(k => tables[k])
+      .sort((a, b) => (parseInt(a.ordering) > parseInt(b.ordering) && 1) || -1)
+      .reduce((r, i) => {
+        r[i.name] = i
+        return r
+      }, {})
+  }
+
   const enrichSchema = schema => {
-    let tempSchema = { ...schema }
+    let tempSchema = sortTables({ ...schema })
     tempSchema._id = {
       type: "internal",
       editable: false,

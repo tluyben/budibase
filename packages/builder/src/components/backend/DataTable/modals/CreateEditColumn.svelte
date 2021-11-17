@@ -44,8 +44,19 @@
   const { hide } = getContext(Context.Modal)
   let fieldDefinitions = cloneDeep(FIELDS)
 
+  // return count of fields without autocolumns
+  function getCustomFieldCount() {
+    return (
+      Object.keys($tables.selected.schema).length -
+      Object.keys($tables.selected.schema)
+        .map(k => $tables.selected.schema[k])
+        .filter(f => f.autocolumn).length
+    )
+  }
+
   export let field = {
     type: "string",
+    ordering: getCustomFieldCount() + 1,
     constraints: fieldDefinitions.STRING.constraints,
 
     // Initial value for column name in other table for linked records
@@ -78,6 +89,8 @@
   $: columnNameInvalid = PROHIBITED_COLUMN_NAMES.some(
     name => field.name === name
   )
+  $: columnOrderingInvalid = isNaN(parseInt(field.ordering))
+  //$: field.ordering = field.ordering || getCustomFieldCount() + 1
 
   // used to select what different options can be displayed for column type
   $: canBeSearched =
@@ -281,6 +294,14 @@
     options={getAllowedTypes()}
     getOptionLabel={field => field.name}
     getOptionValue={field => field.type}
+  />
+
+  <Input
+    label="Ordering"
+    bind:value={field.ordering}
+    error={columnOrderingInvalid
+      ? `Please enter an integer for ordering this column.`
+      : ""}
   />
 
   {#if canBeRequired || canBeDisplay}
